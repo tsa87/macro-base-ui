@@ -16,7 +16,12 @@ class MainNavigator extends StatelessWidget {
         backgroundColor: Colors.blueGrey,
         title: Text("Macrobase Platform"),
       ),
-      body: Text("TODO")
+      body: OutlineButton(
+        onPressed: () {
+          context.read<FirebaseAuthService>().signOut();
+        },
+        child: Text("Log out"),
+      )
     );
   }
 }

@@ -35,17 +35,20 @@ class LoginPageBody extends StatelessWidget {
             mainAxisSize: MainAxisSize.max,
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
-              FlutterLogo(size: 150),
               Text("Macrobase",
                 style: TextStyle(
-                  fontSize: 20,
+                  fontSize: 40,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.blue,
                 ),
               ),
               Text("Automate the boring stuff.",
                 style: TextStyle(
-                  fontSize: 15,
+                  fontSize: 20,
+                  color: Colors.blue,
                 ),
               ),
+              Image(image: AssetImage("automate_task.png"), height: 400,),
               SizedBox(height: 30),
               _signInButton(context),
             ],
