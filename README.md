@@ -1,4 +1,5 @@
-# macro_base_app
+# macro-base
+Code-less platform to automate the boring tasks using G-Suite APIs
 
 Download [googler-service.json](https://firebase.corp.google.com/project/stepladder-2020/settings/general/android:com.example.macro_base_app)
 A new Flutter project.
