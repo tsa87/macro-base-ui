@@ -1,3 +1,5 @@
+// Button Adapted from: https://medium.com/flutter-community/flutter-implementing-google-sign-in-71888bca24ed
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 

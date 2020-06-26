@@ -1,9 +1,4 @@
-// Button Adapted from: https://medium.com/flutter-community/flutter-implementing-google-sign-in-71888bca24ed
-
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-
-import 'login_page_model.dart';
 import 'widgets/signin_button_widget.dart';
 
 class LoginPage extends StatelessWidget {
@@ -11,14 +6,7 @@ class LoginPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider<SignInViewModel>(
-      create: (_) => SignInViewModel(context.read),
-      builder: (_, child) {
-        return const Scaffold(
-          body: LoginPageBody._(),
-        );
-      },
-    );
+    return LoginPageBody._();
   }
 }
 
