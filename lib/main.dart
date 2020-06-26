@@ -1,23 +1,29 @@
-// Copyright 2018 The Flutter team. All rights reserved.
-// Use of this source code is governed by a BSD-style license that can be
-// found in the LICENSE file.
+// adapted from: https://www.youtube.com/watch?v=0HLt1TYA600
 
 import 'package:flutter/material.dart';
-import 'screens/login_page.dart';
+import 'package:provider/provider.dart';
 
-void main() => runApp(MyApp());
+import 'app/app.dart';
+import 'app/services/firebase_auth_service.dart';
 
-// #docregion MyApp
-class MyApp extends StatelessWidget {
-  // #docregion build
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Macrobase Platform',
-      theme: ThemeData(
-        primaryColor: Colors.white,
+void main() => runApp(
+  /// Inject the [FirebaseAuthService]
+  /// and provide a stream of [User]
+  ///
+  /// This needs to be above [MaterialApp]
+  /// At the top of the widget tree, to
+  /// accomodate for navigations in the app
+  MultiProvider(
+    providers: [
+      Provider(
+        create: (_) => FirebaseAuthService(),
       ),
-      home: LoginPage(),
-    );
-  }
-}
+      StreamProvider(
+        create: (context) =>
+        context.read<FirebaseAuthService>().onAuthStateChanged,
+      ),
+    ],
+    child: MyApp(),
+  ),
+);
+

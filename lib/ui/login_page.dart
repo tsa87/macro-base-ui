@@ -1,13 +1,30 @@
-import 'package:flutter/material.dart';
-import '../model/sign_in.dart';
-import 'main_navigator.dart';
+// Adapted from: https://medium.com/flutter-community/flutter-implementing-google-sign-in-71888bca24ed
 
-class LoginPage extends StatefulWidget {
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
+import '../app/services/firebase_auth_service.dart';
+import 'login_page_model.dart';
+
+class LoginPage extends StatelessWidget {
+  const LoginPage({Key key}) : super(key: key);
+
   @override
-  _LoginPageState createState() => _LoginPageState();
+  Widget build(BuildContext context) {
+    return ChangeNotifierProvider<SignInViewModel>(
+      create: (_) => SignInViewModel(context.read),
+      builder: (_, child) {
+        return const Scaffold(
+          body: LoginPageBody._(),
+        );
+      },
+    );
+  }
 }
 
-class _LoginPageState extends State<LoginPage> {
+class LoginPageBody extends StatelessWidget {
+  const LoginPageBody._({Key key}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -30,7 +47,7 @@ class _LoginPageState extends State<LoginPage> {
                 ),
               ),
               SizedBox(height: 30),
-              _signInButton(),
+              _signInButton(context),
             ],
           ),
         ),
@@ -38,19 +55,11 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-  Widget _signInButton() {
+  Widget _signInButton(BuildContext context) {
     return OutlineButton(
       splashColor: Colors.grey,
       onPressed: () {
-        signInWithGoogle().whenComplete(() {
-          Navigator.of(context).push(
-            MaterialPageRoute(
-              builder: (context) {
-                return MainNavigator();
-              },
-            ),
-          );
-        });
+        context.read<FirebaseAuthService>().signInWithGoogle();
       },
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(40)),
       highlightElevation: 0,
