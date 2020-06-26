@@ -3,8 +3,6 @@
 import 'package:flutter/material.dart';
 import '../app/services/firebase_auth_service.dart';
 import 'package:provider/provider.dart';
-import 'login_page.dart';
-import '../app/models/user.dart';
 
 class MainNavigator extends StatelessWidget {
   const MainNavigator({Key key}) : super(key: key);
