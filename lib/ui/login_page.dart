@@ -27,13 +27,13 @@ class LoginPageBody extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 40,
                   fontWeight: FontWeight.bold,
-                  color: Colors.blue,
+                  color: Colors.green,
                 ),
               ),
               Text("Automate the boring stuff.",
                 style: TextStyle(
                   fontSize: 20,
-                  color: Colors.blue,
+                  color: Colors.green,
                 ),
               ),
               Image(image: AssetImage("automate_task.png"), height: 400,),

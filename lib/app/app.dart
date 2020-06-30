@@ -13,14 +13,14 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Macrobase Platform',
       theme: ThemeData(
-        primaryColor: Colors.white,
+        primaryColor: Colors.green,
       ),
       home: Consumer<User> (
           builder: (_, user, __) {
             if (user == null) {
-              return const LoginPage();
+              return LoginPage();
             } else {
-              return const MainNavigator();
+              return MainNavigator(user:user);
             }
           },
       ),
