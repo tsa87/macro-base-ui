@@ -1,7 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:macrobaseapp/app/models/macro.dart';
-
-import 'package:macrobaseapp/app/services/macro_notifier.dart';
+import 'package:macrobaseapp/logic/state/macro_notifier.dart';
+import 'package:macrobaseapp/model/adapters/macro_model.dart';
+import 'package:macrobaseapp/model/entities/macro.dart';
 
 getMacros(MacroNotifier macroNotifier) async{
   QuerySnapshot snapshot = await Firestore.instance.collection('macros').getDocuments();
@@ -9,10 +9,15 @@ getMacros(MacroNotifier macroNotifier) async{
   List<Macro> _macroList = [];
 
   snapshot.documents.forEach((element) {
-    Macro macro = Macro.fromJson(element.data);
+    Macro macro = MacroModel.fromJson(element.data);
     _macroList.add(macro);
   });
 
   macroNotifier.macroList = _macroList;
   print(_macroList);
+}
+
+uploadMacro(Map<String, dynamic> json) {
+  Firestore.instance.collection('macros').document()
+      .setData(json);
 }

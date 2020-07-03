@@ -1,7 +1,6 @@
 import 'dart:collection';
-
 import 'package:flutter/cupertino.dart';
-import '../models/macro.dart';
+import 'package:macrobaseapp/model/entities/macro.dart';
 
 class MacroNotifier with ChangeNotifier {
   List<Macro> _macroList = [];
