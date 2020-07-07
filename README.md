@@ -24,7 +24,7 @@ Run all the unit tests
 flutter test test/
 ```
 ## Project Structure 
-####Lib/
+#### Lib/
 * #### Presentation/
   * ##### Widgets/ - ```Contains reuseable widgets used by pages```
   * ##### Pages/ - ```Contains UI code for each page```
@@ -37,5 +37,5 @@ flutter test test/
   * ##### Entities/ - ```Contains the pure defintion of model classes```
   * ##### Adapter/ - ```Code that converts external data to entity classes```
   
-####Test/
+#### Test/
 * ##### Same folder structure as "Lib/"; Each file tests the production code. 
