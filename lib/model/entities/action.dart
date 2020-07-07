@@ -2,7 +2,9 @@ import 'package:equatable/equatable.dart';
 import 'package:meta/meta.dart';
 
 class Action extends Equatable {
-  static final String POLL_ACTION = "Poll Action";
+  static const String SHEET_ACTION = "Sheet Action";
+  static const String POLL_ACTION = "Poll Action";
+
   final String type;
 
   Action(@required this.type);
@@ -11,6 +13,23 @@ class Action extends Equatable {
   List<Object> get props => [type];
 }
 
+// TODO: Expand to other operations {Update}
+// Defines the operation to append a row to a Google Sheet
+class SheetAction extends Action {
+  final String sheetUrl;
+  final List<String> columns;
+
+  SheetAction({
+    @required this.sheetUrl,
+    @required this.columns,
+  }) : super(Action.SHEET_ACTION);
+
+  @override
+  List<Object> get props => super.props..addAll(
+    [sheetUrl, columns]);
+}
+
+// Defines a Poll action configuration
 class PollAction extends Action {
   final String question;
   final List<String> choices;

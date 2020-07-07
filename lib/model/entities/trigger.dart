@@ -2,8 +2,8 @@ import 'package:equatable/equatable.dart';
 import 'package:meta/meta.dart';
 
 class Trigger extends Equatable {
-  static final String COMMAND_BASED = "Command Trigger";
-  static final String TIME_BASED = "Time Trigger";
+  static const String COMMAND_BASED = "Command Trigger";
+  static const String TIME_BASED = "Time Trigger";
 
   final String type;
 

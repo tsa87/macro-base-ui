@@ -21,3 +21,20 @@ uploadMacro(Map<String, dynamic> json) {
   Firestore.instance.collection('macros').document()
       .setData(json);
 }
+
+Future<List<Macro>> queryMacro(String macroName) async {
+  QuerySnapshot snapshot = await Firestore.instance
+    .collection('macros')
+    .where("macroName", isEqualTo: macroName)
+    .getDocuments();
+
+  List<Macro> _macroList = [];
+
+  snapshot.documents.forEach((element) {
+    Macro macro = MacroModel.fromJson(element.data);
+    _macroList.add(macro);
+    print(macro);
+  });
+
+  return _macroList;
+}
