@@ -23,7 +23,7 @@ abstract class SheetActionModel extends SheetAction {
 
   static fromJson(Map<String, dynamic> json) {
     if (json['sheetAction'] == SheetAction.APPEND_ACTION) {
-      //TODO
+      return SheetAppendActionModel.fromJson(json);
     }
   }
 }
@@ -37,7 +37,7 @@ class SheetAppendActionModel extends AppendAction {
   factory SheetAppendActionModel.fromJson(Map<String, dynamic> json) {
     return SheetAppendActionModel(
       sheetUrl: json["sheetUrl"],
-      columnValue: json["columnValue"],
+      columnValue: json["columnValue"].cast<String>(),
     );
   }
 

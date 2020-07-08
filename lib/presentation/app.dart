@@ -3,7 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:macrobaseapp/model/entities/user.dart';
 import 'package:macrobaseapp/presentation/pages/login_page.dart';
-import 'package:macrobaseapp/presentation/pages/main_navigator.dart';
+import 'package:macrobaseapp/presentation/navigation/main_navigator.dart';
 import 'package:provider/provider.dart';
 
 class MyApp extends StatelessWidget {
@@ -12,14 +12,14 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Macrobase Platform',
       theme: ThemeData(
-        primaryColor: Colors.green,
+        primaryColor: Colors.blueGrey,
       ),
       home: Consumer<User> (
         builder: (_, user, __) {
           if (user == null) {
             return LoginPage();
           } else {
-            return MainNavigator(user: user);
+            return MainNavigator();
           }
         },
       ),

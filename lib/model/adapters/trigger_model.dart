@@ -10,7 +10,6 @@ class TriggerModel extends Trigger {
     if (json['type'] == Trigger.COMMAND_BASED) {
       return CommandTriggerModel.fromJson(json);
     } else {
-      // Error handle
     }
   }
 }

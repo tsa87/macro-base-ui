@@ -1,126 +1,152 @@
-import 'dart:convert';
-
 import 'package:flutter_form_bloc/flutter_form_bloc.dart';
-import 'package:macrobaseapp/logic/state/macro_sub_blocs/action_blocs/poll_action_bloc.dart';
-import 'package:macrobaseapp/logic/state/macro_sub_blocs/action_type_bloc.dart';
-import 'package:macrobaseapp/logic/state/macro_sub_blocs/trigger_blocs/command_trigger_bloc.dart';
-import 'package:macrobaseapp/logic/state/macro_sub_blocs/macro_description_bloc.dart';
-import 'package:macrobaseapp/logic/state/macro_sub_blocs/macro_name_bloc.dart';
-import 'package:macrobaseapp/logic/state/macro_sub_blocs/trigger_blocs/time_trigger_field_bloc.dart';
-import 'package:macrobaseapp/logic/state/macro_sub_blocs/trigger_type_bloc.dart';
 import 'package:macrobaseapp/logic/usecases/macro_firestore/firestore_macro_operation.dart';
 import 'package:macrobaseapp/model/adapters/action_model.dart';
 import 'package:macrobaseapp/model/adapters/macro_model.dart';
 import 'package:macrobaseapp/model/adapters/trigger_model.dart';
-import 'package:macrobaseapp/model/entities/trigger.dart';
 import 'package:macrobaseapp/model/entities/action.dart';
+import 'package:macrobaseapp/model/entities/macro.dart';
+import 'package:macrobaseapp/model/entities/trigger.dart';
 import 'package:macrobaseapp/model/entities/user.dart';
 
-class SerializedFormBloc extends FormBloc<String, String> {
-  final macroNameBloc = MacroNameBloc();
-  final macroDescriptionBloc = MacroDescriptionBloc();
-
-  final triggerTypeBloc = TriggerTypeBloc();
-  final commandTriggerFieldBloc = CommandTriggerFieldBloc();
-  final timeTriggerFieldBloc = TimeTriggerFieldBloc();
-
-  final actionTypeBloc = ActionTypeBloc();
-  final pollActionFieldBloc = PollActionBloc();
-
+class WizardFormBloc extends FormBloc<String, String> {
   final User user;
 
-  SerializedFormBloc({this.user}) {
+  final macroName = TextFieldBloc(
+    validators: [
+      FieldBlocValidators.required,
+    ],
+    asyncValidators: [asyncValidator],
+    name: 'Macro Name',
+  );
+  static Future<String> asyncValidator(String name) async {
+    //Avoid too many Firestore calls
+    await Future.delayed(Duration(milliseconds: 200));
+    List<Macro> list = await queryMacro(name);
+    if (list.length > 0)
+      return "Sorry, this macro name already exist";
+    else
+      return null;
+  }
+
+  final description = TextFieldBloc(
+    validators: [
+      FieldBlocValidators.required,
+    ],
+  );
+
+  final actionType = SelectFieldBloc(
+    name: 'Action Type',
+    validators: [
+      FieldBlocValidators.required,
+    ],
+    items: [Action.SHEET_ACTION, Action.POLL_ACTION],
+  );
+
+  final sheetAppendAction = TextFieldBloc(
+    name: "Sheet URL",
+    validators: [
+      FieldBlocValidators.required,
+    ],
+  );
+
+  final triggerType = SelectFieldBloc(
+    name: 'Trigger Type',
+    validators: [
+      FieldBlocValidators.required,
+    ],
+    items: [Trigger.COMMAND_BASED, Trigger.TIME_BASED],
+  );
+
+  final commandTrigger = TextFieldBloc(
+    name: 'command',
+    validators: [
+      FieldBlocValidators.required,
+    ],
+  );
+
+  WizardFormBloc({this.user}) {
     addFieldBlocs(
-      fieldBlocs: [
-        macroNameBloc.field,
-        macroDescriptionBloc.field,
-        triggerTypeBloc.field,
-        actionTypeBloc.field,
-      ],
+      step: 0,
+      fieldBlocs: [macroName, description],
     );
-
-    //Expand hidden fields of trigger
-    triggerTypeBloc.field.onValueChanges(onData: (_, current) async* {
-      removeFieldBlocs(
-        fieldBlocs: [commandTriggerFieldBloc.field, timeTriggerFieldBloc.field],
-      );
-      if (current.value == Trigger.COMMAND_BASED) {
-        addFieldBlocs(fieldBlocs: [commandTriggerFieldBloc.field]);
-      } else if (current.value == Trigger.TIME_BASED) {
-        addFieldBlocs(fieldBlocs: [timeTriggerFieldBloc.field]);
-      }
-    });
-
-    actionTypeBloc.field.onValueChanges(onData: (_, current) async* {
-      removeFieldBlocs(
-        fieldBlocs: [pollActionFieldBloc.field],
-      );
-      if (current.value == Action.POLL_ACTION) {
-        addFieldBlocs(fieldBlocs: [pollActionFieldBloc.field]);
-      }
-    });
+    addFieldBlocs(
+      step: 1,
+      fieldBlocs: [sheetAppendAction],
+    );
+    addFieldBlocs(
+      step: 2,
+      fieldBlocs: [commandTrigger],
+    );
   }
 
   @override
   void onSubmitting() async {
-    dynamic trigger = null;
-    dynamic action = null;
+    if (state.currentStep == 0) {
+      await Future.delayed(Duration(milliseconds: 500));
+      emitSuccess();
+    } else if (state.currentStep == 1) {
+      emitSuccess();
+    } else if (state.currentStep == 2) {
+      await Future.delayed(Duration(milliseconds: 500));
 
-    switch (triggerTypeBloc.field.value) {
-      case (Trigger.COMMAND_BASED):
-        {
-          trigger = new CommandTriggerModel(
-              command: commandTriggerFieldBloc.field.value);
-        }
-        break;
-      case (Trigger.TIME_BASED):
-        {
-          // TODO
-        }
-        break;
-      default:
-        {
-          // TODO
-        }
-        break;
+      dynamic trigger;
+      dynamic action;
+
+      switch (actionType.value) {
+        default:
+          {
+            action = new SheetAppendActionModel(
+              sheetUrl: sheetAppendAction.value,
+              columnValue: ["1", "2", "3"],
+            );
+          }
+          break;
+      }
+
+      switch (triggerType.value) {
+        default:
+          {
+            trigger = new CommandTriggerModel(command: commandTrigger.value);
+          }
+          break;
+      }
+
+      final macro = MacroModel(
+        macroName: macroName.value.trim(),
+        description: description.value.trim(),
+        creatorId: this.user.email,
+        trigger: trigger,
+        action: action,
+      );
+
+      uploadMacro(macro.toJson());
+
+      emitSuccess();
     }
-
-    switch (actionTypeBloc.field.value) {
-
-      case (Action.POLL_ACTION):
-        {
-          final pollActionBloc = PollActionBloc();
-          action = new PollActionModel(
-            question: pollActionBloc.field.value,
-            choices: ["yes", "no"], //TODO Remove hard coded values
-            userCanAddOptions: true,
-            userCanVoteMultiple: true,
-          );
-        }
-        break;
-
-      default:
-        {
-          // TODO
-        }
-        break;
-    }
-
-    final macro = MacroModel(
-      macroName: macroNameBloc.field.value.trim(),
-      description: macroDescriptionBloc.field.value.trim(),
-      creatorId: this.user.email,
-      trigger: trigger,
-      action: action,
-    );
-
-    uploadMacro(macro.toJson());
-
-    emitSuccess(
-      canSubmitAgain: true,
-      successResponse: JsonEncoder.withIndent('  ').convert(
-        macro.toJson(),
-      ),
-    );
   }
 }
+
+//    //Expand hidden fields of trigger
+//    triggerTypeBloc.field.onValueChanges(onData: (_, current) async* {
+//      removeFieldBlocs(
+//        fieldBlocs: [commandTriggerFieldBloc.field, timeTriggerFieldBloc.field],
+//      );
+//      if (current.value == Trigger.COMMAND_BASED) {
+//        addFieldBlocs(fieldBlocs: [commandTriggerFieldBloc.field]);
+//      } else if (current.value == Trigger.TIME_BASED) {
+//        addFieldBlocs(fieldBlocs: [timeTriggerFieldBloc.field]);
+//      }
+//    });
+//
+//    actionTypeBloc.field.onValueChanges(onData: (_, current) async* {
+//      removeFieldBlocs(
+//        fieldBlocs: [pollActionFieldBloc.field, sheetUrlBloc.field],
+//      );
+//      if (current.value == Action.POLL_ACTION) {
+//        addFieldBlocs(fieldBlocs: [pollActionFieldBloc.field]);
+//      } else if (current.value == Action.SHEET_ACTION) {
+//        addFieldBlocs(fieldBlocs: [sheetUrlBloc.field]);
+//      }
+//    });
+//  }
+

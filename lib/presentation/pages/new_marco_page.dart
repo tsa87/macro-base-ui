@@ -4,9 +4,6 @@ import 'package:macrobaseapp/presentation/widgets/new_macro_form.dart';
 
 // Define a custom Form widget.
 class MyCustomForm extends StatefulWidget {
-  final User user;
-  MyCustomForm({this.user});
-
   @override
   MyCustomFormState createState() {
     return MyCustomFormState();
@@ -16,6 +13,6 @@ class MyCustomForm extends StatefulWidget {
 class MyCustomFormState extends State<MyCustomForm> {
   @override
   Widget build(BuildContext context) {
-    return SerializedForm(user: widget.user);
+    return WizardForm();
   }
 }

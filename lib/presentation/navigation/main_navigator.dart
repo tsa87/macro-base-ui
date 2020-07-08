@@ -4,13 +4,10 @@ import 'package:macrobaseapp/logic/usecases/login/firebase_auth.dart';
 import 'package:macrobaseapp/model/entities/user.dart';
 import 'package:provider/provider.dart';
 
-import 'macro_table_page.dart';
-import 'new_marco_page.dart';
+import '../pages/macro_table_page.dart';
+import '../pages/new_marco_page.dart';
 
 class MainNavigator extends StatefulWidget {
-  final User user;
-  MainNavigator({this.user});
-
   @override
   _MainNavigatorState createState() => _MainNavigatorState();
 }
@@ -18,6 +15,8 @@ class MainNavigator extends StatefulWidget {
 class _MainNavigatorState extends State<MainNavigator> {
   @override
   Widget build(BuildContext context) {
+    final user = Provider.of<User>(context);
+
     return DefaultTabController(
         length: 3,
         child: Scaffold(
@@ -58,8 +57,8 @@ class _MainNavigatorState extends State<MainNavigator> {
                 ),
                 Container(
                   child: new Column(children: <Widget>[
-                    Text("${widget.user.displayName}"),
-                    Text("${widget.user.email}"),
+                    Text("${user.displayName}"),
+                    Text("${user.email}"),
                   ]),
                 )
               ],
@@ -67,12 +66,17 @@ class _MainNavigatorState extends State<MainNavigator> {
           ),
           body: TabBarView(
             children: [
-              MyCustomForm(user: widget.user),
-              MacroTable(user: widget.user),
+              MyCustomForm(),
+              MacroTable(),
               Center(
                 child: Text("SETTINGS"),
               ),
             ],
+          ),
+          floatingActionButton: FloatingActionButton(
+            tooltip: 'Add', // used by assistive technologies
+            child: Icon(Icons.add),
+            onPressed: null
           ),
         ));
   }

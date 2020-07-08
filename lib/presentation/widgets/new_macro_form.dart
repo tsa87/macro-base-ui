@@ -4,98 +4,72 @@ import 'dart:html';
 import 'package:flutter/material.dart';
 import 'package:flutter_form_bloc/flutter_form_bloc.dart';
 import 'package:macrobaseapp/logic/state/macro_bloc.dart';
+import 'package:macrobaseapp/model/entities/action.dart' as entity;
 import 'package:macrobaseapp/model/entities/trigger.dart';
-import 'package:macrobaseapp/model/entities/action.dart' as _;
 import 'package:macrobaseapp/model/entities/user.dart';
+import 'package:macrobaseapp/presentation/navigation/main_navigator.dart';
+import 'package:provider/provider.dart';
 
-
-class SerializedForm extends StatefulWidget {
-  SerializedForm({Key key, this.title, this.user}) : super(key: key);
-
-  final String title;
-  final User user;
-
+class WizardForm extends StatefulWidget {
   @override
-  _SerializedFormState createState() => _SerializedFormState();
+  _WizardFormState createState() => _WizardFormState();
 }
 
-class _SerializedFormState extends State<SerializedForm> {
-  int _currentStep = 0;
+class _WizardFormState extends State<WizardForm> {
+  var _type = StepperType.vertical;
 
   @override
   Widget build(BuildContext context) {
-    return Theme(
-      data: Theme.of(context).copyWith(
-        inputDecorationTheme: InputDecorationTheme(
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10),
-          ),
-        ),
-      ),
-      child: BlocProvider(
-        create: (context) => SerializedFormBloc(user: widget.user),
-        child: Builder(builder: (context) {
-          final formBloc = context.bloc<SerializedFormBloc>();
+    final User user = Provider.of<User>(context);
 
-          return FormBlocListener<SerializedFormBloc, String, String>(
-            onSubmitting: (contex, state) {
-              LoadingDialog.show(context);
-            },
-            onSuccess: (context, state) {
-              LoadingDialog.hide(context);
-              Scaffold.of(context).showSnackBar(SnackBar(
-                content: Text(state.successResponse),
-                duration: Duration(seconds: 2),
-              ));
-            },
-            child: SingleChildScrollView(
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Stepper(
-                  steps: _mySteps(formBloc),
-                  currentStep: this._currentStep,
-                  onStepTapped: (step) {
-                    setState(() {
-                      this._currentStep = step;
-                    });
-                  },
-                  onStepContinue: () {
-                    setState(() {
-                      if (this._currentStep <
-                          this._mySteps(formBloc).length - 1) {
-                        this._currentStep = this._currentStep + 1;
-                      } else {
-                        //Logic to check if everything is completed
-                        print('Completed, check fields.');
-                      }
-                    });
-                  },
-                  onStepCancel: () {
-                    setState(() {
-                      if (this._currentStep > 0) {
-                        this._currentStep = this._currentStep - 1;
-                      } else {
-                        this._currentStep = 0;
-                      }
-                    });
-                  },
-                ),
+    return BlocProvider(
+      create: (context) => WizardFormBloc(user: user),
+      child: Builder(builder: (context) {
+        return Theme(
+          data: Theme.of(context).copyWith(
+            inputDecorationTheme: InputDecorationTheme(
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(20),
               ),
             ),
-          );
-        }),
-      ),
+          ),
+          child: FormBlocListener<WizardFormBloc, String, String>(
+            onSubmitting: (context, state) => LoadingDialog.show(context),
+            onSuccess: (context, state) {
+              LoadingDialog.hide(context);
+
+              if (state.stepCompleted == state.lastStep) {
+                Navigator.of(context).pushReplacement(
+                    MaterialPageRoute(builder: (_) => MainNavigator()));
+              }
+            },
+            onFailure: (context, state) {
+              LoadingDialog.hide(context);
+            },
+            child: StepperFormBlocBuilder<WizardFormBloc>(
+              type: _type,
+              physics: ClampingScrollPhysics(),
+              stepsBuilder: (formBloc) {
+                return [
+                  _infoStep(formBloc),
+                  _actionStep(formBloc),
+                  _triggerStep(formBloc),
+                ];
+              },
+            ),
+          ),
+        );
+      }),
     );
   }
 
-  List<Step> _mySteps(formBloc) {
-
-    List<Step> _steps = [
-      Step(
-        title: Text('Basic Info'),
-        content: Column(children: <Widget>[
+  FormBlocStep _infoStep(WizardFormBloc wizardFormBloc) {
+    return FormBlocStep(
+      title: Text('Basic Info'),
+      content: Column(
+        children: <Widget>[
           TextFieldBlocBuilder(
-            textFieldBloc: formBloc.macroNameBloc.field,
+            textFieldBloc: wizardFormBloc.macroName,
             suffixButton: SuffixButton.asyncValidating,
             decoration: InputDecoration(
               labelText: 'Macro Name',
@@ -103,80 +77,88 @@ class _SerializedFormState extends State<SerializedForm> {
             ),
           ),
           TextFieldBlocBuilder(
-            textFieldBloc: formBloc.macroDescriptionBloc.field,
+            textFieldBloc: wizardFormBloc.description,
             decoration: InputDecoration(
               labelText: 'One line description of the macro',
               prefixIcon: Icon(Icons.book),
             ),
           ),
-        ]),
-        isActive: _currentStep >= 0,
+        ],
       ),
-      Step(
-        title: Text("Action"),
-        content: Column(
-          children: <Widget>[
-            Row(
-              children: <Widget>[
-                FlatButton(
-                  onPressed: () {
-                    formBloc.actionTypeBloc.field
-                        .updateValue(_.Action.SHEET_ACTION);
-                  },
-                  padding: EdgeInsets.all(0.0),
-                  child: Image(
-                    image: AssetImage("sheet.png"),
+    );
+  }
+
+  FormBlocStep _actionStep(WizardFormBloc wizardFormBloc) {
+    return FormBlocStep(
+      title: Text('Actions'),
+      content: Column(
+        children: <Widget>[
+          Row(
+            children: <Widget>[
+              FlatButton(
+                onPressed: () {
+                  wizardFormBloc.actionType
+                      .updateValue(entity.Action.SHEET_ACTION);
+                },
+                padding: EdgeInsets.all(0.0),
+                child: Image(
+                  image: AssetImage("sheet.png"),
+                  height: 100,
+                  width: 200,
+                ),
+              ),
+            ],
+          ),
+          TextFieldBlocBuilder(
+            textFieldBloc: wizardFormBloc.sheetAppendAction,
+            decoration: InputDecoration(
+              labelText: 'The URL for sheet',
+              prefixIcon: Icon(Icons.book),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  FormBlocStep _triggerStep(WizardFormBloc wizardFormBloc) {
+    return FormBlocStep(
+      title: Text('Trigger'),
+      content: Column(
+        children: <Widget>[
+          Row(
+            children: <Widget>[
+              FlatButton(
+                onPressed: () {
+                  wizardFormBloc.triggerType.updateValue(Trigger.COMMAND_BASED);
+                },
+                padding: EdgeInsets.all(0.0),
+                child: Column(children: <Widget>[
+                  Image(
+                    image: AssetImage("hangout.png"),
                     height: 100,
                     width: 200,
                   ),
-                ),
-              ],
-            ),
-          ],
-        ),
-        isActive: _currentStep >= 1,
-      ),
-      Step(
-        title: Text("Trigger Condition"),
-        content: Column(
-          children: <Widget>[
-            Row(
-              children: <Widget>[
-                FlatButton(
-                  onPressed: () {
-                    formBloc.triggerTypeBloc.field
-                        .updateValue(Trigger.COMMAND_BASED);
-                  },
-                  padding: EdgeInsets.all(0.0),
-                  child: Column(children: <Widget>[
-                    Image(
-                      image: AssetImage("hangout.png"),
-                      height: 100,
-                      width: 200,
+                  Text(
+                    "Command Based",
+                    style: TextStyle(
+                      fontSize: 15,
                     ),
-                    Text(
-                      "Command Based",
-                      style: TextStyle(
-                        fontSize: 15,
-                      ),
-                    )
-                  ]),
-                ),
-              ],
-            ),
-            TextFieldBlocBuilder(
-              textFieldBloc: formBloc.commandTriggerFieldBloc.field,
-              decoration: InputDecoration(
-                labelText: 'Command to trigger the macro',
-                prefixIcon: Icon(Icons.insert_comment),
+                  )
+                ]),
               ),
+            ],
+          ),
+          TextFieldBlocBuilder(
+            textFieldBloc: wizardFormBloc.commandTrigger,
+            decoration: InputDecoration(
+              labelText: 'Command to trigger the macro',
+              prefixIcon: Icon(Icons.insert_comment),
             ),
-          ],
-        ),
-        isActive: _currentStep >= 2,
+          ),
+        ],
       ),
-    ];
-    return _steps;
+    );
   }
 }
 
@@ -209,3 +191,6 @@ class LoadingDialog extends StatelessWidget {
     );
   }
 }
+
+
+

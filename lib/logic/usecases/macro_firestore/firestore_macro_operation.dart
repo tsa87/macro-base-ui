@@ -11,9 +11,11 @@ getMacros(MacroNotifier macroNotifier) async{
   List<Macro> _macroList = [];
 
   snapshot.documents.forEach((element) {
-    Macro macro = MacroModel.fromJson(element.data);
-    macro.macroId = element.documentID;
-    _macroList.add(macro);
+    try{
+      Macro macro = MacroModel.fromJson(element.data);
+      macro.macroId = element.documentID;
+      _macroList.add(macro);
+    } catch(e) {}
   });
 
   macroNotifier.macroList = _macroList;
