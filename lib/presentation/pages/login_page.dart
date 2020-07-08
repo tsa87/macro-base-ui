@@ -23,20 +23,25 @@ class LoginPageBody extends StatelessWidget {
             mainAxisSize: MainAxisSize.max,
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
-              Text("Macrobase",
+              Text(
+                "Macrobase",
                 style: TextStyle(
                   fontSize: 40,
                   fontWeight: FontWeight.bold,
                   color: Colors.green,
                 ),
               ),
-              Text("Automate the boring stuff.",
+              Text(
+                "Automate the boring stuff.",
                 style: TextStyle(
                   fontSize: 20,
                   color: Colors.green,
                 ),
               ),
-              Image(image: AssetImage("automate_task.png"), height: 400,),
+              Image(
+                image: AssetImage("automate_task.png"),
+                height: 400,
+              ),
               SizedBox(height: 30),
               signInButton(context),
             ],

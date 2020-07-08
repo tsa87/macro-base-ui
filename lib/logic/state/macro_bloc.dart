@@ -14,6 +14,7 @@ import 'package:macrobaseapp/model/adapters/macro_model.dart';
 import 'package:macrobaseapp/model/adapters/trigger_model.dart';
 import 'package:macrobaseapp/model/entities/trigger.dart';
 import 'package:macrobaseapp/model/entities/action.dart';
+import 'package:macrobaseapp/model/entities/user.dart';
 
 class SerializedFormBloc extends FormBloc<String, String> {
   final macroNameBloc = MacroNameBloc();
@@ -26,7 +27,9 @@ class SerializedFormBloc extends FormBloc<String, String> {
   final actionTypeBloc = ActionTypeBloc();
   final pollActionFieldBloc = PollActionBloc();
 
-  SerializedFormBloc() {
+  final User user;
+
+  SerializedFormBloc({this.user}) {
     addFieldBlocs(
       fieldBlocs: [
         macroNameBloc.field,
@@ -64,33 +67,49 @@ class SerializedFormBloc extends FormBloc<String, String> {
     dynamic action = null;
 
     switch (triggerTypeBloc.field.value) {
-      case (Trigger.COMMAND_BASED): {
-        trigger = new CommandTriggerModel(command: commandTriggerFieldBloc.field.value);
-      } break;
-      case (Trigger.TIME_BASED): { // TODO
-      } break;
-      default: { // TODO
-      } break;
+      case (Trigger.COMMAND_BASED):
+        {
+          trigger = new CommandTriggerModel(
+              command: commandTriggerFieldBloc.field.value);
+        }
+        break;
+      case (Trigger.TIME_BASED):
+        {
+          // TODO
+        }
+        break;
+      default:
+        {
+          // TODO
+        }
+        break;
     }
 
     switch (actionTypeBloc.field.value) {
-      case (Action.POLL_ACTION): {
-        final pollActionBloc = PollActionBloc();
-        action = new PollActionModel(
-          question: pollActionBloc.field.value,
-          choices: ["yes", "no"], //TODO Remove hard coded values
-          userCanAddOptions: true,
-          userCanVoteMultiple: true,
-        );
-      } break;
-      default: { // TODO
-      } break;
+
+      case (Action.POLL_ACTION):
+        {
+          final pollActionBloc = PollActionBloc();
+          action = new PollActionModel(
+            question: pollActionBloc.field.value,
+            choices: ["yes", "no"], //TODO Remove hard coded values
+            userCanAddOptions: true,
+            userCanVoteMultiple: true,
+          );
+        }
+        break;
+
+      default:
+        {
+          // TODO
+        }
+        break;
     }
 
     final macro = MacroModel(
       macroName: macroNameBloc.field.value.trim(),
       description: macroDescriptionBloc.field.value.trim(),
-      creatorId: "tonyshen@google.com",
+      creatorId: this.user.email,
       trigger: trigger,
       action: action,
     );

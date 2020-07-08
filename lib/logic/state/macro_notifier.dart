@@ -4,6 +4,8 @@ import 'package:macrobaseapp/model/entities/macro.dart';
 
 class MacroNotifier with ChangeNotifier {
   List<Macro> _macroList = [];
+
+  String userEmail;
   Macro _currentMacro;
 
   UnmodifiableListView<Macro> get macroList => UnmodifiableListView(_macroList);

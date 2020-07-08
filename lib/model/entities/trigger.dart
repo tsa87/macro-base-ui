@@ -7,7 +7,7 @@ class Trigger extends Equatable {
 
   final String type;
 
-  Trigger(@required this.type);
+  Trigger(this.type);
 
   @override
   List<Object> get props => [type];

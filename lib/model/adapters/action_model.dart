@@ -1,7 +1,7 @@
 import 'package:macrobaseapp/model/entities/action.dart';
 import 'package:meta/meta.dart';
 
-class ActionModel extends Action {
+abstract class ActionModel extends Action {
   ActionModel({
     @required String type,
   }) : super(type);
@@ -9,9 +9,45 @@ class ActionModel extends Action {
   static fromJson(Map<String, dynamic> json) {
     if (json['type'] == Action.POLL_ACTION) {
       return PollActionModel.fromJson(json);
-    } else {
-      //Error Handling
+    } else if (json['type'] == Action.SHEET_ACTION) {
+      return SheetActionModel.fromJson(json);
     }
+  }
+}
+
+abstract class SheetActionModel extends SheetAction {
+  SheetActionModel({
+    @required sheetUrl,
+    @required sheetAction,
+  }) : super(sheetUrl: sheetUrl, sheetAction: sheetAction);
+
+  static fromJson(Map<String, dynamic> json) {
+    if (json['sheetAction'] == SheetAction.APPEND_ACTION) {
+      //TODO
+    }
+  }
+}
+
+class SheetAppendActionModel extends AppendAction {
+  SheetAppendActionModel({
+    @required sheetUrl,
+    @required List<String> columnValue,
+  }) : super(sheetUrl, columnValue);
+
+  factory SheetAppendActionModel.fromJson(Map<String, dynamic> json) {
+    return SheetAppendActionModel(
+      sheetUrl: json["sheetUrl"],
+      columnValue: json["columnValue"],
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      "type": type,
+      "sheetUrl": sheetUrl,
+      "sheetAction": SheetAction.APPEND_ACTION,
+      "columnValue": columnValue,
+    };
   }
 }
 

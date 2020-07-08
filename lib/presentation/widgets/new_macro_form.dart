@@ -1,13 +1,19 @@
 import 'dart:convert';
+import 'dart:html';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_form_bloc/flutter_form_bloc.dart';
 import 'package:macrobaseapp/logic/state/macro_bloc.dart';
+import 'package:macrobaseapp/model/entities/trigger.dart';
+import 'package:macrobaseapp/model/entities/action.dart' as _;
+import 'package:macrobaseapp/model/entities/user.dart';
+
 
 class SerializedForm extends StatefulWidget {
-  SerializedForm({Key key, this.title}) : super(key: key);
+  SerializedForm({Key key, this.title, this.user}) : super(key: key);
 
   final String title;
+  final User user;
 
   @override
   _SerializedFormState createState() => _SerializedFormState();
@@ -27,7 +33,7 @@ class _SerializedFormState extends State<SerializedForm> {
         ),
       ),
       child: BlocProvider(
-        create: (context) => SerializedFormBloc(),
+        create: (context) => SerializedFormBloc(user: widget.user),
         child: Builder(builder: (context) {
           final formBloc = context.bloc<SerializedFormBloc>();
 
@@ -83,6 +89,7 @@ class _SerializedFormState extends State<SerializedForm> {
   }
 
   List<Step> _mySteps(formBloc) {
+
     List<Step> _steps = [
       Step(
         title: Text('Basic Info'),
@@ -106,60 +113,68 @@ class _SerializedFormState extends State<SerializedForm> {
         isActive: _currentStep >= 0,
       ),
       Step(
-        title: Text("Trigger Condition"),
+        title: Text("Action"),
         content: Column(
           children: <Widget>[
-            RadioButtonGroupFieldBlocBuilder<String>(
-              selectFieldBloc: formBloc.triggerTypeBloc.field,
-              itemBuilder: (context, value) => value,
-              decoration: InputDecoration(
-                labelText: 'Trigger Type',
-                prefixIcon: SizedBox(),
-              ),
-            ),
-            TextFieldBlocBuilder(
-              textFieldBloc: formBloc.commandTriggerFieldBloc.field,
-              decoration: InputDecoration(
-                labelText: 'Command to trigger the macro',
-              ),
-            ),
-            DropdownFieldBlocBuilder<String>(
-              selectFieldBloc: formBloc.timeTriggerFieldBloc.field,
-              decoration: InputDecoration(
-                labelText: "Interval Type for Time Trigger",
-              ),
-              itemBuilder: (context, value) => value,
+            Row(
+              children: <Widget>[
+                FlatButton(
+                  onPressed: () {
+                    formBloc.actionTypeBloc.field
+                        .updateValue(_.Action.SHEET_ACTION);
+                  },
+                  padding: EdgeInsets.all(0.0),
+                  child: Image(
+                    image: AssetImage("sheet.png"),
+                    height: 100,
+                    width: 200,
+                  ),
+                ),
+              ],
             ),
           ],
         ),
         isActive: _currentStep >= 1,
       ),
       Step(
-        title: Text("Action"),
+        title: Text("Trigger Condition"),
         content: Column(
           children: <Widget>[
-            RadioButtonGroupFieldBlocBuilder<String>(
-              selectFieldBloc: formBloc.actionTypeBloc.field,
-              itemBuilder: (context, value) => value,
-              decoration: InputDecoration(
-                labelText: 'Action Type',
-                prefixIcon: SizedBox(),
-              ),
+            Row(
+              children: <Widget>[
+                FlatButton(
+                  onPressed: () {
+                    formBloc.triggerTypeBloc.field
+                        .updateValue(Trigger.COMMAND_BASED);
+                  },
+                  padding: EdgeInsets.all(0.0),
+                  child: Column(children: <Widget>[
+                    Image(
+                      image: AssetImage("hangout.png"),
+                      height: 100,
+                      width: 200,
+                    ),
+                    Text(
+                      "Command Based",
+                      style: TextStyle(
+                        fontSize: 15,
+                      ),
+                    )
+                  ]),
+                ),
+              ],
             ),
             TextFieldBlocBuilder(
-              textFieldBloc: formBloc.pollActionFieldBloc.field,
+              textFieldBloc: formBloc.commandTriggerFieldBloc.field,
               decoration: InputDecoration(
-                labelText: 'Poll Question',
+                labelText: 'Command to trigger the macro',
+                prefixIcon: Icon(Icons.insert_comment),
               ),
-            ),
-            FloatingActionButton(
-              onPressed: formBloc.submit,
-              child: Icon(Icons.send),
             ),
           ],
         ),
         isActive: _currentStep >= 2,
-      )
+      ),
     ];
     return _steps;
   }

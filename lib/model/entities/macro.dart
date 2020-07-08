@@ -3,6 +3,7 @@ import 'package:meta/meta.dart';
 
 class Macro extends Equatable {
 
+  String macroId;
   final String macroName;
   final String description;
   final String creatorId;

@@ -1,20 +1,26 @@
+import 'dart:html';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:macrobaseapp/logic/state/macro_notifier.dart';
 import 'package:macrobaseapp/model/adapters/macro_model.dart';
 import 'package:macrobaseapp/model/entities/macro.dart';
 
 getMacros(MacroNotifier macroNotifier) async{
-  QuerySnapshot snapshot = await Firestore.instance.collection('macros').getDocuments();
+  QuerySnapshot snapshot = await Firestore.instance.collection('macros').where("creatorId", isEqualTo: macroNotifier.userEmail).getDocuments();
 
   List<Macro> _macroList = [];
 
   snapshot.documents.forEach((element) {
     Macro macro = MacroModel.fromJson(element.data);
+    macro.macroId = element.documentID;
     _macroList.add(macro);
   });
 
   macroNotifier.macroList = _macroList;
-  print(_macroList);
+}
+
+Future<void> removeMacro(String macroId) {
+  return Firestore.instance.collection('macros').document(macroId).delete();
 }
 
 uploadMacro(Map<String, dynamic> json) {
@@ -33,7 +39,6 @@ Future<List<Macro>> queryMacro(String macroName) async {
   snapshot.documents.forEach((element) {
     Macro macro = MacroModel.fromJson(element.data);
     _macroList.add(macro);
-    print(macro);
   });
 
   return _macroList;

@@ -67,8 +67,8 @@ class _MainNavigatorState extends State<MainNavigator> {
           ),
           body: TabBarView(
             children: [
-              MyCustomForm(),
-              MacroTable(),
+              MyCustomForm(user: widget.user),
+              MacroTable(user: widget.user),
               Center(
                 child: Text("SETTINGS"),
               ),
