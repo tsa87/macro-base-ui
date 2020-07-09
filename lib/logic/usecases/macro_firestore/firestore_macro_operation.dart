@@ -5,8 +5,8 @@ import 'package:macrobaseapp/logic/state/macro_notifier.dart';
 import 'package:macrobaseapp/model/adapters/macro_model.dart';
 import 'package:macrobaseapp/model/entities/macro.dart';
 
-getMacros(MacroNotifier macroNotifier) async{
-  QuerySnapshot snapshot = await Firestore.instance.collection('macros').where("creatorId", isEqualTo: macroNotifier.userEmail).getDocuments();
+getMacros(MacroNotifier macroNotifier, String creatorId) async{
+  QuerySnapshot snapshot = await Firestore.instance.collection('macros').where("creatorId", isEqualTo: creatorId).getDocuments();
 
   List<Macro> _macroList = [];
 
@@ -15,7 +15,9 @@ getMacros(MacroNotifier macroNotifier) async{
       Macro macro = MacroModel.fromJson(element.data);
       macro.macroId = element.documentID;
       _macroList.add(macro);
-    } catch(e) {}
+    } catch(e) {
+      print(element.data);
+    }
   });
 
   macroNotifier.macroList = _macroList;

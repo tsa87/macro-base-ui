@@ -12,23 +12,17 @@ class MacroTable extends StatefulWidget {
 }
 
 class _MacroTableState extends State<MacroTable> {
-  @override
-  void initState() {
-    MacroNotifier macroNotifier =
-        Provider.of<MacroNotifier>(context, listen: false);
-
-//    macroNotifier.userEmail = Provider.of<User>(context).email;
-    getMacros(macroNotifier);
-
-    super.initState();
-  }
 
   @override
   Widget build(BuildContext context) {
-    MacroNotifier macroNotifier = Provider.of<MacroNotifier>(context);
+    final macroNotifier = Provider.of<MacroNotifier>(context, listen: false);
+    final user = Provider.of<User>(context);
+
+    getMacros(macroNotifier, user.email);
 
     if (macroNotifier.macroList.length == 0) {
       return Container(
+        padding: EdgeInsets.all(40),
         child: Column(
           children: <Widget>[
             Image(

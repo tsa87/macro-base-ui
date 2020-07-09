@@ -3,7 +3,7 @@ import 'package:macrobaseapp/logic/usecases/macro_firestore/firestore_macro_oper
 import 'package:macrobaseapp/model/adapters/action_model.dart';
 import 'package:macrobaseapp/model/adapters/macro_model.dart';
 import 'package:macrobaseapp/model/adapters/trigger_model.dart';
-import 'package:macrobaseapp/model/entities/action.dart';
+import 'package:macrobaseapp/model/entities/action.dart' as Model;
 import 'package:macrobaseapp/model/entities/macro.dart';
 import 'package:macrobaseapp/model/entities/trigger.dart';
 import 'package:macrobaseapp/model/entities/user.dart';
@@ -39,7 +39,7 @@ class WizardFormBloc extends FormBloc<String, String> {
     validators: [
       FieldBlocValidators.required,
     ],
-    items: [Action.SHEET_ACTION, Action.POLL_ACTION],
+    items: [Model.Action.SHEET_ACTION, Model.Action.POLL_ACTION],
   );
 
   final sheetAppendAction = TextFieldBloc(
