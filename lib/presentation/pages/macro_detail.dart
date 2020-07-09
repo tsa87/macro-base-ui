@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:macrobaseapp/presentation/widgets/macro_detail_header.dart';
 
 import 'package:flutter/material.dart';
 import 'package:macrobaseapp/logic/state/macro_notifier.dart';
@@ -18,44 +19,8 @@ class MacroDetail extends StatelessWidget {
       appBar: AppBar(
         title: Text(macroModel.macroName),
       ),
-      body: Center(
-        child: Container(
-          padding: const EdgeInsets.all(32),
-          child: Row(
-            children: [
-              Expanded(
-                /*1*/
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    /*2*/
-                    Container(
-                      padding: const EdgeInsets.only(bottom: 8),
-                      child: Text(
-                        macroModel.macroName,
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                    Text(
-                      macroModel.description,
-                      style: TextStyle(
-                        color: Colors.grey[500],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              /*3*/
-              Icon(
-                Icons.star,
-                color: Colors.red[500],
-              ),
-              Text(macroModel.action.type),
-            ],
-          ),
-        )
+      body: Column(
+        children: [MacroDetailHeader(macroModel: macroModel)],
       ),
     );
   }
